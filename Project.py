@@ -227,7 +227,7 @@ def Det_Berkowitz(x):
     n = len(x)
     (a, d) = Adj_Det_Berkowitz([y[1 :] for y in x[1 :]])
     r = x[0][0] * d - Multiply_vector_matrix_vector(range(n - 1), range(n - 1), x[0][1 :], a, [y[0] for y in x[1 :]])
-    return(r if n % 2 == 0 else -r)
+    return(-r if n % 2 == 0 else r)
 def Det_Gaussian_elimination(x):
   n = len(x)
   Det = 1
