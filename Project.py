@@ -365,6 +365,10 @@ def Equal_scalar(x, y):
   return(Round(x) == Round(y))
 def Equal_vector(x, y):
   return(x == y)
+def Error_matrix(x, y):
+  return(sqrt(sum(sum([(y[i][j] - x[i][j]) ** 2 for j in range(len(x[0]))]) for i in range(len(x)))))
+def Error_scalar(x, y):
+  return(abs(y - x))
 def Functions():
   return(
     [
