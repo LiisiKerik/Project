@@ -369,13 +369,6 @@ def Error_matrix(x, y):
   return(sqrt(sum(sum([(y[i][j] - x[i][j]) ** 2 for j in range(len(x[0]))]) for i in range(len(x)))))
 def Error_scalar(x, y):
   return(abs(y - x))
-def Functions():
-  return(
-    [
-      (Adj_Det(), Adj_Det_tests(), Equal_matrix_scalar),
-      (Characteristic(), Characteristic_tests(), Equal_vector),
-      (Det(), Det_tests(), Equal_scalar),
-      (Inv(), Inv_tests(), Equal_maybe_matrix)])
 def Identity(n):
   return([[1 if j == i else 0 for j in n] for i in n])
 def Inv():
@@ -519,6 +512,8 @@ def Multiply_vector_vector(n, x, y):
   return(sum([x[i] * y[i] for i in n]))
 def Negate(m, n, x):
   return([[-x[i][j] for j in n] for i in m])
+def Newline():
+  print("\n")
 def Powers(m, n, x):
   Result = [None for _ in range(n)]
   if n != 0:
@@ -548,9 +543,30 @@ def Test(f, Test_cases, Equality):
     w = f(x)
     if not(Equality(w, y)):
       print((z, y, w))
+def Test_functions():
+  return(
+    [
+      (Adj_Det(), Adj_Det_tests(), Equal_matrix_scalar),
+      (Characteristic(), Characteristic_tests(), Equal_vector),
+      (Det(), Det_tests(), Equal_scalar),
+      (Inv(), Inv_tests(), Equal_maybe_matrix)])
 def Tests():
-  for (f, Test_cases, Equality) in Functions():
+  Title("TESTS")
+  for (f, Test_cases, Equality) in Test_functions():
     for g in f:
       Test(g, Test_cases, Equality)
+def Time_functions():
+  return([Det(), Inv()])
+def Times():
+  Title("TIMES")
+  for f in Time_functions():
+    for g in f:
+      pass
+def Title(x):
+  print(x + "\n" + len(x) * "-" + "\n")
+Newline()
 Tests()
+Newline()
+Times()
+Newline()
 #############################################################################################################################
