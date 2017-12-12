@@ -1,6 +1,13 @@
 #############################################################################################################################
 from copy import *
+from fractions import *
 from math import *
+from random import *
+from time import *
+def Abs_error_scalar(x, y):
+  return(abs(y - x))
+def Actions():
+  return([("TESTS", Tests), ("ERRORS", Errors), ("TIMES", Times)])
 def Adj_Det():
   return([Adj_Det_Berkowitz])
 def Adj_Det_Berkowitz(x):
@@ -119,18 +126,14 @@ def Characteristic_Berkowitz(x):
 def Characteristic_Berkowitz_1(n, x):
   return([-x[0][0]] if n == 1 else Characteristic_Berkowitz_2(n, x))
 def Characteristic_Berkowitz_2(n, x):
-  Element = x[0][0]
-  Row = x[0][1 :]
   Column = [y[0] for y in x[1 :]]
   Matrix = [y[1 :] for y in x[1 :]]
   c = Characteristic_Berkowitz_1(n - 1, Matrix)
-  p =\
-    (
-      [Element, Multiply_vector_vector(range(n - 1), Row, Column)] +
-      [
-        Multiply_vector_matrix_vector(range(n - 1), range(n - 1), Row, y, Column)
-        for y in Powers(range(n - 1), n - 2, Matrix)])
-  a = [sum([p[j] * c[i + j] for j in range(n - 1 - i)]) + p[n - 1 - i] for i in range(n)]
+  q = [x[0][1 :]]
+  for i in range(n - 2):
+    q += [Multiply_vector_matrix(range(n - 1), range(n - 1), q[i], Matrix)]
+  p = [x[0][0]] + [Multiply_vector_vector(range(n - 1), q[i], Column) for i in range(n - 1)]
+  a = [Multiply_vector_vector(range(n - 1 - i), p, c[i :]) + p[n - 1 - i] for i in range(n)]
   return([-a[0]] + [c[i - 1] - a[i] for i in range(1, n)])
 def Characteristic_tests():
   return(
@@ -232,7 +235,8 @@ def Det_Berkowitz(x):
     (a, d) = Adj_Det_Berkowitz([y[1 :] for y in x[1 :]])
     r = x[0][0] * d + Multiply_vector_matrix_vector(range(n - 1), range(n - 1), x[0][1 :], a, [y[0] for y in x[1 :]])
     return(-r if n % 2 == 0 else r)
-def Det_Gaussian_elimination(x):
+def Det_Gaussian_elimination(x_ref):
+  x = deepcopy(x_ref)
   n = len(x)
   Det = 1
   for i in range(n):
@@ -366,9 +370,37 @@ def Equal_scalar(x, y):
 def Equal_vector(x, y):
   return(x == y)
 def Error_matrix(x, y):
-  return(sqrt(sum(sum([(y[i][j] - x[i][j]) ** 2 for j in range(len(x[0]))]) for i in range(len(x)))))
-def Error_scalar(x, y):
-  return(abs(y - x))
+  return(0 if x == None else sqrt(sum(sum([(y[i][j] - x[i][j]) ** 2 for j in range(len(x[0]))]) for i in range(len(x))))) 
+def Errors():
+  for (fname, f, errs, Etalon, Num_tests) in Measure_functions():
+    Names(f)
+    e = len(errs)
+    l = len(f)
+    Results = [[[] for _ in f] for _ in errs]
+    n = 0
+    while(True):
+      x =\
+        [(a, Etalon([[Fraction(Element) for Element in Row] for Row in a]))
+        for a in [[[uniform(-1, 1) for _ in range(n)] for _ in range(n)] for _ in range(Num_tests)]]
+      Timesum = 0
+      for i in range(l):
+        fi = f[i]
+        Errsum = [[] for _ in errs]
+        for j in range(Num_tests):
+          xj = x[j][0]
+          Start = clock()
+          y = fi(xj)
+          End = clock()
+          Timesum += End - Start
+          for t in range(e):
+            Errsum[t] += [errs[t][1](x[j][1], y)]
+        for t in range(e):
+          Results[t][i] += [Median(Errsum[t])]
+      n += 1
+      if Timesum > 15 * l:
+        break
+    for t in range(e):
+      Write(n, l, "Error_" + fname + "_" + errs[t][0], Results[t])
 def Identity(n):
   return([[1 if j == i else 0 for j in n] for i in n])
 def Inv():
@@ -376,7 +408,8 @@ def Inv():
 def Inv_Berkowitz(x):
   (a, d) = Adj_Det_Berkowitz(x)
   return(None if d == 0 else Div(a, -d))
-def Inv_Gaussian_elimination(x):
+def Inv_Gaussian_elimination(x_ref):
+  x = deepcopy(x_ref)
   n = len(x)
   Inverse = Identity(range(n))
   for i in range(n):
@@ -500,6 +533,15 @@ def Inv_tests():
           [-5.225, -0.85, 1.225, 2.75],
           [1.325, 0.45, -0.325, -0.75],
           [1.35, 0.1, -0.35, -0.5]])])
+def Measure_functions():
+  return(
+    [
+      ("Det", Det(), [("Abs", Abs_error_scalar), ("Rel", Rel_error_scalar)], Det_Gaussian_elimination, 10000),
+      ("Inv", Inv(), [("Distance", Error_matrix)], Inv_Gaussian_elimination, 10000)])
+def Median(x):
+  n = len(x)
+  x.sort()
+  return((x[n // 2 - 1] + x[n // 2]) / 2 if n % 2 == 0 else x[n // 2])
 def Multiply_matrix_matrix(l, m, n, x, y):
   return([[sum([x[i][k] * y[k][j] for k in m]) for j in n] for i in l])
 def Multiply_scalar_matrix(x, y):
@@ -510,10 +552,19 @@ def Multiply_vector_matrix_vector(m, n, x, y, z):
   return(Multiply_vector_vector(n, Multiply_vector_matrix(m, n, x, y), z))
 def Multiply_vector_vector(n, x, y):
   return(sum([x[i] * y[i] for i in n]))
+def Name(x):
+  print(x.__name__)
+def Names(x):
+  return(print("[" + ", ".join([y.__name__ for y in x]) + "]"))
 def Negate(m, n, x):
   return([[-x[i][j] for j in n] for i in m])
 def Newline():
   print("\n")
+def Or(x):
+  for y in x:
+    if y:
+      return(True)
+  return(False)
 def Powers(m, n, x):
   Result = [None for _ in range(n)]
   if n != 0:
@@ -521,6 +572,8 @@ def Powers(m, n, x):
     for i in range(n - 1):
       Result[i + 1] = Multiply_matrix_matrix(m, m, m, x, Result[i])
   return(Result)
+def Rel_error_scalar(x, y):
+  return(0 if x == 0 else abs((y - x) / x))
 def Round(x):
   return(0 if x == 0 else -Round_1(-x) if x < 0 else Round_1(x))
 def Round_1(x):
@@ -536,13 +589,6 @@ def Round_1(x):
   return((y // 10 + y % 10 // 5) / 10 ** (i - 1))
 def Sum(m, n, x):
   return([[sum([y[i][j] for y in x]) for j in n] for i in m])
-def Test(f, Test_cases, Equality):
-  print(f.__name__)
-  for (x, y) in Test_cases:
-    z = deepcopy(x)
-    w = f(x)
-    if not(Equality(w, y)):
-      print((z, y, w))
 def Test_functions():
   return(
     [
@@ -551,22 +597,52 @@ def Test_functions():
       (Det(), Det_tests(), Equal_scalar),
       (Inv(), Inv_tests(), Equal_maybe_matrix)])
 def Tests():
-  Title("TESTS")
-  for (f, Test_cases, Equality) in Test_functions():
-    for g in f:
-      Test(g, Test_cases, Equality)
-def Time_functions():
-  return([Det(), Inv()])
+  for (Functions, Test_cases, Equality) in Test_functions():
+    for f in Functions:
+      Name(f)
+      for (x, y) in Test_cases:
+        z = f(x)
+        if not(Equality(z, y)):
+          print((x, y, w))
 def Times():
-  Title("TIMES")
-  for f in Time_functions():
-    for g in f:
-      pass
-def Title(x):
-  print(x + "\n" + len(x) * "-" + "\n")
+  for (fname, f, _, _, _) in Measure_functions():
+    l = len(f)
+    Names(f)
+    Continue = [True for _ in f]
+    Results = [[] for _ in f]
+    n = 0
+    while(Or(Continue)):
+      for i in range(l):
+        if Continue[i]:
+          Reps = 0
+          Result = 0
+          while True:
+            Reps += 1
+            x = [[uniform(-1, 1) for _ in range(n)] for _ in range(n)]
+            fi = f[i]
+            Start = clock()
+            _ = fi(x)
+            End = clock()
+            Result += End - Start
+            if Result > 1:
+              break
+          Results[i] += [Result / Reps]
+          if Reps == 1:
+            Continue[i] = False
+      n += 1
+    Write(n + 1, l, "Time_" + fname, Results)
+def Write(m, n, Filename, x):
+  y = [[str(i)] + [str(x[j][i]) if i < len(x[j]) else "!" for j in range(n)] for i in range(m)]
+  for i in range(n):
+    Column_width = max([len(Row[i]) for Row in y])
+    for j in range(m):
+      y[j][i] = y[j][i].ljust(Column_width)
+  File = open(Filename + ".dat", "w")
+  File.write("\n".join([" ".join(y[i]) for i in range(m)]))
+  File.close()
 Newline()
-Tests()
-Newline()
-Times()
-Newline()
+for (Title, f) in Actions():
+  print(Title + "\n" + len(Title) * "-" + "\n")
+  f()
+  Newline()
 #############################################################################################################################

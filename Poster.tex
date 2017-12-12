@@ -1,0 +1,64 @@
+\documentclass{tikzposter}
+\usepackage{amsfonts}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\newcommand\pilt[1]{
+  \includegraphics[width=0.4\textwidth]{#1}}
+\title{Berkowitz Algorithm}
+\institute{Tartu Ülikool\\Arvutiteaduste Instituut}
+\author{Liisi Kerik}
+%\usetheme{Basic}
+\begin{document}
+  \maketitle
+  \begin{columns}
+    \column{0.5}
+      \block{The Algorithm}{
+        A square matrix $A$ which is not a $0\times0$ matrix can be written as
+        \begin{equation}
+          A=\left(\begin{tabular}{c | c}
+            $a$ & $\tau$ \\\hline
+            $\lambda$ & $A'$
+          \end{tabular}\right)
+        \end{equation}
+        where $a$ is the top left element, $\tau$ is the rest of the top row, $\lambda$ is the rest of the top column, and $A'$ is the rest of the matrix.
+
+        The base case of this recursive formula is the $0\times0$ matrix which has characteristic polynomial $1$.}
+      \block{Precision}{
+        \pilt{Error_Det}
+
+        \pilt{Error_Inv}}
+    \column{0.5}
+      \block{Performance}{
+        \pilt{Time_Det}
+
+        \pilt{Time_Inv}}
+      \block{Disadvantages}{
+        \begin{itemize}
+          \item
+            Precision is worse than that of Gaussian elimination. If the algorithm has to be implemented on top of some limited-precision number format like floating point numbers (which is likely the case for most standard uses), then the loss of precision is a disadvantage, especially for larger matrices. In some less standard uses, for example if the field is not $\mathbb{R}$ but $\mathbb{Z}_p$, precision is not an issue.
+          \item
+            Performance is worse than that of Gaussian elimination. Impractical whenever performance is important.
+        \end{itemize}}
+      \block{Interesting Features, advantages and Uses}{
+        \begin{itemize}
+          \item
+            The algorithm, unlike Gaussian elimination, does not require modifying the matrix, and is therefore side effect free and well-suited for implementing in a purely functional language like Haskell or Idris, without resorting to essentially imperative code wrapped inside a monad to contain side effects.
+          \item
+            The algorithm does not require random access to the elements of the matrix - rows and columns are always processed from head to tail. This makes it possible to implement the algorithm on top of a data structure without random access.
+          \item
+            The algorithm is division-free.
+          \item
+            For any given size of the matrix, the algorithm can be written as a directed acyclic graph (DAG). The algorithm does not branch depending on the contents of the matrix. The simplicity of the algorithm makes bugs less likely. Absence of branching might make the algorithm suitable, without fundamental modifications, for applications where branching is undesirable or even dangerous because it might leak information (secure multiparty computation).
+          \item
+            The algorithm is an excellent teaching tool for learning linear algebra. Studying the algorithm confers a better understanding of several fundamental linear algebra concepts, such as characteristic polynomial, adjugate and determinant, and their relationships.
+          \item
+            The algorithm parallelises well.
+        \end{itemize}}
+      \block{References}{
+        \begin{thebibliography}{9}
+          \bibitem{sol}
+            M. Soltys. \textit{Berkowitz's Algorithm and Clow Sequences}
+        \end{thebibliography}}
+  \end{columns}
+\end{document}
