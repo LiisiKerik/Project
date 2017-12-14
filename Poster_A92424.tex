@@ -1,0 +1,92 @@
+\documentclass{tikzposter}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\DeclareMathOperator{\adj}{adj}
+\DeclareMathOperator{\toepl}{Toepl}
+\def\kui{\quad\text{if}\quad}
+\newcommand\pilt[1]{
+  \includegraphics[width=0.4\textwidth]{#1}}
+\title{Berkowitz Algorithm}
+\institute{University of Tartu, Institute of Computer Science}
+\author{Liisi Kerik}
+%%%%%%%%%%%%
+
+%TODO: tekst tapsuse ja kiiruse juurde (kuidas moodeti, mida moodeti)
+
+%%%%
+\begin{document}
+  \maketitle
+  \begin{columns}
+    \column{0.5}
+      \block{The Algorithm}{
+        Berkowitz algorithm finds the characteristic polynomial of a matrix. An $n\times n$ square matrix $A$, where $n>0$, can be written as
+        \begin{equation*}
+          A=\left(\begin{tabular}{c|c}$a$&$\tau$\\\hline$\lambda$&$A'$\end{tabular}\right)
+        \end{equation*}
+        where $a$ is the top left element, $\tau$ is the rest of the top row, $\lambda$ is the rest of the left column, and $A'$ is the rest of the matrix. The characteristic polynomial of $A$ can be expressed as
+        \begin{equation*}
+          c=\begin{cases}(1)\kui n=0\\\toepl(-1,a,\tau\lambda,...,\tau A'^{n-2}\lambda)\cdot(0|c')\kui n>0\end{cases}
+        \end{equation*}
+        where $c'$ is the characteristic polynomial of $A'$ and $\toepl$ denotes an $(n+1)\times(n+1)$ Toeplitz triangular matrix:
+        \begin{equation*}
+          \toepl(x_0,...,x_n)_{ij}=\begin{cases}x_{j-i}\kui j-i\geqslant0\\0\kui j-i<0\end{cases}
+        \end{equation*}
+        Adjugate and determinant can be found from the characteristic polynomial using the following equations:
+        \begin{equation*}
+          \adj A=-\sum_{i=1}^nc_iA^{i-1}
+        \end{equation*}
+        \begin{equation*}
+          \det A=c_0
+        \end{equation*}
+        From this, we can find the inverse
+        \begin{equation*}
+          A^{-1}=\dfrac{\adj A}{\det A}
+        \end{equation*}
+        If we need only the determinant, we can find it more efficiently, skipping the computation of the last characteristic polynomial:
+        \begin{equation*}
+          \det A=\begin{cases}1\kui n=0\\a\cdot\det A'-\tau\cdot\adj A'\cdot\lambda\kui n>0\end{cases}
+        \end{equation*}
+        \begin{thebibliography}{9}
+          \bibitem{rot}
+            G. Rote. \textit{Division-Free Algorithms for the Determinant and the Pfaffian: Algebraic and Combinatorial Approaches}
+          \bibitem{sol}
+            M. Soltys. \textit{Berkowitz's Algorithm and Clow Sequences}
+        \end{thebibliography}}
+      \block{Precision}{
+        \pilt{Error_Det}
+
+        \pilt{Error_Inv}}
+    \column{0.5}
+      \block{Performance}{
+        \pilt{Time_Det}
+
+        \pilt{Time_Inv}}
+      \block{Disadvantages}{
+        \begin{itemize}
+          \item
+            Precision is worse than that of Gaussian elimination. If the algorithm has to be implemented on top of some limited-precision number format like floating point numbers (which is likely the case for most standard uses), then the loss of precision is a disadvantage, especially for larger matrices. In some less standard uses, for example if the field is not $\mathbb{R}$ but $\mathbb{Z}_p$, precision is not an issue.
+          \item
+            Performance is significantly worse than that of Gaussian elimination. This was to be expected, since the complexity of Berkowitz algorithm is %TODO: SIIT JATKATA
+        \end{itemize}
+        All in all, the algorithm is impractical for most standard uses.}
+      \block{Interesting Features, Advantages and Uses}{
+        \begin{itemize}
+          \item
+            The algorithm, unlike Gaussian elimination, does not require modifying the matrix, and is therefore side effect free and well-suited for implementing in a purely functional language like Haskell or Idris, without resorting to essentially imperative code wrapped inside a monad to contain side effects.
+          \item
+            The algorithm does not require random access to the elements of the matrix - rows and columns are always processed from head to tail. This makes it possible to implement the algorithm on top of a data structure without random access.
+          \item
+            The algorithm is division-free. %TODO: KIRJUTADA MIKS HEA
+          \item
+            For any given size of the matrix, the algorithm can be written as a directed acyclic graph (DAG). The algorithm does not branch depending on the contents of the matrix. The simplicity of the algorithm makes bugs less likely. Absence of branching might make the algorithm suitable, without fundamental modifications, for applications where branching is undesirable or even dangerous because it might leak information (secure multiparty computation and other side channel safe code).
+          \item
+            The algorithm is an excellent teaching tool for learning linear algebra. Studying the algorithm confers a better understanding of several fundamental linear algebra concepts, such as characteristic polynomial, adjugate and determinant, and their relationships.
+          \item
+            The algorithm parallelises well.
+        \end{itemize}}
+  \end{columns}
+\end{document}
