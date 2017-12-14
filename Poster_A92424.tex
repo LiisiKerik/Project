@@ -1,23 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass{tikzposter}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{cormorantgaramond}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
+\usepackage{pifont}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
 \DeclareMathOperator{\adj}{adj}
 \DeclareMathOperator{\toepl}{Toepl}
 \def\kui{\quad\text{if}\quad}
+\definecolor{antiquewhite}{RGB}{250,235,215}
+\definecolor{coral}{RGB}{255,127,80}
+\definecolor{crimson}{RGB}{220,20,60}
+\definecolor{lightcoral}{RGB}{255,127,80}
+\definecolorstyle{myColorStyle}{}{
+  \colorlet{backgroundcolor}{antiquewhite}
+  \colorlet{blocktitlebgcolor}{coral}
+  \colorlet{framecolor}{coral}}
 \newcommand\pilt[1]{
-  \includegraphics[width=0.4\textwidth]{#1}}
+  \begin{center}
+    \begin{tcolorbox}[arc=4mm,boxrule=2mm,colback=white,colframe=lightcoral,width=0.38\textwidth]
+      \includegraphics[width=\textwidth]{#1}
+    \end{tcolorbox}
+  \end{center}}
+\renewcommand\labelitemi{\color{crimson}{\ding{96}}}
+\usecolorstyle{myColorStyle}
 \title{Berkowitz Algorithm}
 \institute{University of Tartu, Institute of Computer Science}
 \author{Liisi Kerik}
-%%%%%%%%%%%%
-
-%TODO: tekst tapsuse ja kiiruse juurde (kuidas moodeti, mida moodeti)
-
-%%%%
 \begin{document}
   \maketitle
   \begin{columns}
@@ -57,22 +71,29 @@
             M. Soltys. \textit{Berkowitz's Algorithm and Clow Sequences}
         \end{thebibliography}}
       \block{Precision}{
+        For each algorithm and matrix size, we performed $10^4$ precision measurements on random matrices with elements in $[-1,1]$ and took the median error. Precision was measured by comparing the outcomes of floating-point computations to the outcomes of exact computations on fractions.
+
         \pilt{Error_Det}
 
-        \pilt{Error_Inv}}
+        For determinant, we used the relative error with respect to the exact result.
+
+        \pilt{Error_Inv}
+
+        For inverse, we used the Euclidean distance from the exact result.}
     \column{0.5}
       \block{Performance}{
+        For each algorithm and matrix size, we measured how many random matrices with elements in $[-1,1]$ can be processed in one second and took the average running time.
+
         \pilt{Time_Det}
 
         \pilt{Time_Inv}}
       \block{Disadvantages}{
         \begin{itemize}
           \item
-            Precision is worse than that of Gaussian elimination. If the algorithm has to be implemented on top of some limited-precision number format like floating point numbers (which is likely the case for most standard uses), then the loss of precision is a disadvantage, especially for larger matrices. In some less standard uses, for example if the field is not $\mathbb{R}$ but $\mathbb{Z}_p$, precision is not an issue.
+            Precision is worse than that of Gaussian elimination. If the algorithm has to be implemented on top of some limited-precision number format like floating point numbers (which is likely the case for most standard uses), then the loss of precision is a disadvantage, especially for larger matrices. In some less standard uses, for example if the ring is not $\mathbb{R}$ but $\mathbb{Z}_n$, precision is not an issue.
           \item
-            Performance is significantly worse than that of Gaussian elimination. This was to be expected, since the complexity of Berkowitz algorithm is %TODO: SIIT JATKATA
-        \end{itemize}
-        All in all, the algorithm is impractical for most standard uses.}
+            Unparallelised performance is significantly worse than that of Gaussian elimination. (Implementing a parallelised version was outside the scope of this work.)
+        \end{itemize}}
       \block{Interesting Features, Advantages and Uses}{
         \begin{itemize}
           \item
@@ -80,13 +101,14 @@
           \item
             The algorithm does not require random access to the elements of the matrix - rows and columns are always processed from head to tail. This makes it possible to implement the algorithm on top of a data structure without random access.
           \item
-            The algorithm is division-free. %TODO: KIRJUTADA MIKS HEA
+            The algorithm is division-free. This is an advantage when we are working in a ring where not all elements have inverses, or when division is slow or imprecise.
           \item
             For any given size of the matrix, the algorithm can be written as a directed acyclic graph (DAG). The algorithm does not branch depending on the contents of the matrix. The simplicity of the algorithm makes bugs less likely. Absence of branching might make the algorithm suitable, without fundamental modifications, for applications where branching is undesirable or even dangerous because it might leak information (secure multiparty computation and other side channel safe code).
           \item
-            The algorithm is an excellent teaching tool for learning linear algebra. Studying the algorithm confers a better understanding of several fundamental linear algebra concepts, such as characteristic polynomial, adjugate and determinant, and their relationships.
+            The algorithm is an excellent teaching tool for learning linear algebra. Studying the algorithm confers a better understanding of several fundamental linear algebra concepts - such as characteristic polynomial, adjugate and determinant - and their relationships.
           \item
-            The algorithm parallelises well.
+            The algorithm parallelises well - the circuit is of polynomial size and $\mathcal{O}(\log^2)$ depth~\cite{sol}.
         \end{itemize}}
   \end{columns}
 \end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
