@@ -71,7 +71,7 @@
             M. Soltys. \textit{Berkowitz's Algorithm and Clow Sequences}
         \end{thebibliography}}
       \block{Precision}{
-        For each algorithm and matrix size, we performed $10^4$ precision measurements on random matrices with elements in $[-1,1]$ and took the median error. Precision was measured by comparing the outcomes of floating-point computations to the outcomes of exact computations on fractions.
+        We compared Berkowitz algorithm to Gaussian elimination. For each algorithm and matrix size, we performed $10^4$ precision measurements on uniformly random matrices of double-precision floating point numbers in $[-1,1]$ and took the median error. Precision was measured by comparing the approximate results (floating point) to the exact answers (fractions).
 
         \pilt{Error_Det}
 
@@ -82,7 +82,7 @@
         For inverse, we used the Euclidean distance from the exact result.}
     \column{0.5}
       \block{Performance}{
-        For each algorithm and matrix size, we measured how many random matrices with elements in $[-1,1]$ can be processed in one second and took the average running time.
+        Berkowitz algorithm and Gaussian elimination were implemented in Python, without the aid of any special libraries like NumPy, and without making use of concurrency. For each algorithm and matrix size, we measured how many uniformly random matrices of double-precision floating point numbers in $[-1,1]$ can be processed in one second and took the average running time.
 
         \pilt{Time_Det}
 
@@ -99,9 +99,9 @@
           \item
             The algorithm, unlike Gaussian elimination, does not require modifying the matrix, and is therefore side effect free and well-suited for implementing in a purely functional language like Haskell or Idris, without resorting to essentially imperative code wrapped inside a monad to contain side effects.
           \item
-            The algorithm does not require random access to the elements of the matrix - rows and columns are always processed from head to tail. This makes it possible to implement the algorithm on top of a data structure without random access.
+            The algorithm does not require random access to the elements of the matrix. Rows and columns are processed from head to tail. This makes it straightforward to implement the algorithm on top of a data structure without random access.
           \item
-            The algorithm is division-free. This is an advantage when we are working in a ring where not all elements have inverses, or when division is slow or imprecise.
+            The algorithm is division-free. This is an advantage when we are working with a ring where not all elements have inverses, or when division is slow or imprecise.
           \item
             For any given size of the matrix, the algorithm can be written as a directed acyclic graph (DAG). The algorithm does not branch depending on the contents of the matrix. The simplicity of the algorithm makes bugs less likely. Absence of branching might make the algorithm suitable, without fundamental modifications, for applications where branching is undesirable or even dangerous because it might leak information (secure multiparty computation and other side channel safe code).
           \item
