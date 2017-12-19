@@ -16,11 +16,17 @@
 \definecolor{antiquewhite}{RGB}{250,235,215}
 \definecolor{coral}{RGB}{255,127,80}
 \definecolor{crimson}{RGB}{220,20,60}
+\definecolor{firebrick}{RGB}{178,34,34}
 \definecolor{lightcoral}{RGB}{255,127,80}
+\definecolor{lightsalmon}{RGB}{255,160,122}
+\definecolor{salmon}{RGB}{250,128,114}
+\definecolor{tomato}{RGB}{255,99,71}
 \definecolorstyle{myColorStyle}{}{
   \colorlet{backgroundcolor}{antiquewhite}
   \colorlet{blocktitlebgcolor}{coral}
-  \colorlet{framecolor}{coral}}
+  \colorlet{framecolor}{coral}
+  \colorlet{notebgcolor}{lightsalmon}
+  \colorlet{notefrcolor}{firebrick}}
 \newcommand\pilt[1]{
   \begin{center}
     \begin{tcolorbox}[arc=4mm,boxrule=2mm,colback=white,colframe=lightcoral,width=0.38\textwidth]
@@ -29,7 +35,7 @@
   \end{center}}
 \renewcommand\labelitemi{\color{crimson}{\ding{96}}}
 \usecolorstyle{myColorStyle}
-\title{Berkowitz Algorithm}
+\title{\parbox{\linewidth}{\begin{center}Berkowitz Algorithm\\\normalsize https://github.com/LiisiKerik/Project\end{center}}}
 \institute{University of Tartu, Institute of Computer Science}
 \author{Liisi Kerik}
 \begin{document}
@@ -87,6 +93,7 @@
         \pilt{Time_Det}
 
         \pilt{Time_Inv}}
+      \note[angle=70,radius=13in,width=0.2\linewidth]{\begin{center}\textbf{Acknowledgements}\end{center}The author has received the IT Academy specialisation stipend during their studies.}
       \block{Disadvantages}{
         \begin{itemize}
           \item
